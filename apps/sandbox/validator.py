@@ -22,6 +22,14 @@ FORBIDDEN_MODULES = {
     "codecs",
     "io",
     "json",
+    "gc",
+    "inspect",
+    "code",
+    "dis",
+    "types",
+    "weakref",
+    "resource",
+    "signal",
 }
 
 FORBIDDEN_CALLS = {
@@ -33,6 +41,7 @@ FORBIDDEN_CALLS = {
     "getattr",
     "setattr",
     "delattr",
+    "hasattr",
     "globals",
     "locals",
     "vars",
@@ -40,6 +49,8 @@ FORBIDDEN_CALLS = {
     "input",
     "breakpoint",
     "help",
+    "exit",
+    "quit",
 }
 
 

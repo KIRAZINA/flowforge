@@ -1,6 +1,8 @@
 import ast
 import io
+import json
 import multiprocessing
+import sys
 import traceback
 from contextlib import redirect_stdout
 
@@ -10,6 +12,27 @@ from .exceptions import (
 )
 from .helpers import Helpers
 from .validator import validate_code
+
+DEFAULT_TIMEOUT = 3.0
+DEFAULT_MAX_MEMORY_MB = 64
+DEFAULT_MAX_RESULT_SIZE = 1 * 1024 * 1024
+
+
+def _apply_memory_limit(max_memory_mb):
+    if not sys.platform.startswith("linux"):
+        return False
+    try:
+        import resource
+
+        limit = max_memory_mb * 1024 * 1024
+        resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+        try:
+            resource.setrlimit(resource.RLIMIT_RSS, (limit, limit))
+        except (ValueError, OSError):
+            pass
+        return True
+    except Exception:
+        return False
 
 
 def _make_builtins(stdout_buffer):
@@ -29,8 +52,19 @@ def _make_builtins(stdout_buffer):
     return result
 
 
-def _worker(code, input_data, queue):
+def _result_size(result):
+    try:
+        return len(json.dumps(result, default=str))
+    except Exception:
+        try:
+            return len(repr(result))
+        except Exception:
+            return 0
+
+
+def _worker(code, input_data, queue, timeout, max_memory_mb, max_result_size):
     stdout_buffer = io.StringIO()
+    _apply_memory_limit(max_memory_mb)
     try:
         validate_code(code)
         tree = ast.parse(code, mode="exec")
@@ -61,6 +95,18 @@ def _worker(code, input_data, queue):
                         "No result produced: assign to a variable named 'result' "
                         "or provide a single expression."
                     )
+
+        if _result_size(result) > max_result_size:
+            queue.put(
+                {
+                    "success": False,
+                    "result": None,
+                    "error": f"Result exceeds the maximum allowed size of {max_result_size} bytes.",
+                    "error_type": "result_too_large",
+                    "stdout": stdout_buffer.getvalue(),
+                }
+            )
+            return
 
         queue.put(
             {
@@ -100,7 +146,7 @@ def _worker(code, input_data, queue):
         )
 
 
-def _run(code, input_data, timeout):
+def _run(code, input_data, timeout, max_memory_mb, max_result_size):
     if input_data is None:
         input_data = {}
 
@@ -116,7 +162,11 @@ def _run(code, input_data, timeout):
         }
 
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=_worker, args=(code, input_data, queue), daemon=True)
+    process = multiprocessing.Process(
+        target=_worker,
+        args=(code, input_data, queue, timeout, max_memory_mb, max_result_size),
+        daemon=True,
+    )
     process.start()
     process.join(timeout)
 
@@ -151,11 +201,23 @@ def _run(code, input_data, timeout):
     }
 
 
-def run_transform(code, data, timeout=2.0):
+def run_transform(
+    code,
+    data,
+    timeout=DEFAULT_TIMEOUT,
+    max_memory_mb=DEFAULT_MAX_MEMORY_MB,
+    max_result_size=DEFAULT_MAX_RESULT_SIZE,
+):
     """Main entry point for Transform nodes."""
-    return _run(code, data, timeout)
+    return _run(code, data, timeout, max_memory_mb, max_result_size)
 
 
-def execute_user_code(code, input_data=None, timeout=2.0, max_memory_mb=64):
+def execute_user_code(
+    code,
+    input_data=None,
+    timeout=DEFAULT_TIMEOUT,
+    max_memory_mb=DEFAULT_MAX_MEMORY_MB,
+    max_result_size=DEFAULT_MAX_RESULT_SIZE,
+):
     """Backward-compatible alias."""
-    return _run(code, input_data, timeout)
+    return _run(code, input_data, timeout, max_memory_mb, max_result_size)
