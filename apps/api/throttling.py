@@ -1,8 +1,12 @@
+from rest_framework.settings import api_settings
 from rest_framework.throttling import SimpleRateThrottle
 
 
 class WebhookRateThrottle(SimpleRateThrottle):
     scope = "webhook"
+
+    def get_rate(self):
+        return api_settings.DEFAULT_THROTTLE_RATES.get(self.scope)
 
     def get_cache_key(self, request, view):
         api_key = getattr(request, "auth", None)
@@ -15,6 +19,9 @@ class WebhookRateThrottle(SimpleRateThrottle):
 
 class ApiRateThrottle(SimpleRateThrottle):
     scope = "api"
+
+    def get_rate(self):
+        return api_settings.DEFAULT_THROTTLE_RATES.get(self.scope)
 
     def get_cache_key(self, request, view):
         user = getattr(request, "user", None)

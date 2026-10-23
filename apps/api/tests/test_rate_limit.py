@@ -36,6 +36,7 @@ def published_workflow(db):
 @pytest.mark.django_db
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True, REST_FRAMEWORK=THROTTLE_SETTINGS)
 def test_webhook_rate_limit(published_workflow):
+    cache.clear()
     workflow, version = published_workflow
     client = APIClient()
     responses = [client.post("/hooks/rl-flow/", {}, format="json") for _ in range(3)]
@@ -47,6 +48,7 @@ def test_webhook_rate_limit(published_workflow):
 @pytest.mark.django_db
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True, REST_FRAMEWORK=THROTTLE_SETTINGS)
 def test_api_rate_limit(db):
+    cache.clear()
     user = User.objects.create_user("rlapi", "rlapi@example.com", "pass")
     client = APIClient()
     client.force_authenticate(user=user)

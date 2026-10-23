@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, throttle_cla
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from apps.api.services.payload_validation import resolve_payload_schema, validate_payload
 from apps.api.throttling import WebhookRateThrottle
 from apps.workflows.models import Trigger, Workflow
 
@@ -112,6 +113,14 @@ def webhook_view(request, workflow_slug, trigger_path=None):
         payload = {}
     else:
         payload = {"data": request.data}
+
+    schema = resolve_payload_schema(trigger, version)
+    validation_errors = validate_payload(schema, payload)
+    if validation_errors:
+        return Response(
+            {"error": "Payload validation failed", "details": validation_errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     from apps.executions.services import start_execution
 
