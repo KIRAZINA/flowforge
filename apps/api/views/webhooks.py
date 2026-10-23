@@ -3,10 +3,11 @@ import hmac
 
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from apps.api.throttling import WebhookRateThrottle
 from apps.workflows.models import Trigger, Workflow
 
 
@@ -61,6 +62,7 @@ def _authenticate_api_key(request):
 
 @api_view(["GET", "POST", "PUT", "PATCH", "DELETE"])
 @permission_classes([AllowAny])
+@throttle_classes([WebhookRateThrottle])
 def webhook_view(request, workflow_slug, trigger_path=None):
     workflow = Workflow.objects.filter(slug=workflow_slug, is_active=True).first()
     if workflow is None:

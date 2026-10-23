@@ -128,6 +128,10 @@ REST_FRAMEWORK = {
         "apps.api.authentication.ApiKeyAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "DEFAULT_THROTTLE_RATES": {
+        "webhook": "60/min",
+        "api": "300/min",
+    },
 }
 
 # drf-spectacular

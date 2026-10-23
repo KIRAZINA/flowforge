@@ -11,6 +11,7 @@ from apps.api.serializers import (
     WorkflowSerializer,
     WorkflowVersionSerializer,
 )
+from apps.api.throttling import ApiRateThrottle
 from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
 
 
@@ -19,6 +20,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     serializer_class = WorkflowSerializer
     lookup_field = "slug"
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    throttle_classes = [ApiRateThrottle]
 
     def perform_create(self, serializer):
         serializer.save(
@@ -31,6 +33,7 @@ class WorkflowVersionViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
     lookup_url_kwarg = "pk"
     permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
+    throttle_classes = [ApiRateThrottle]
 
     def get_queryset(self):
         queryset = WorkflowVersion.objects.all()
@@ -68,6 +71,7 @@ class NodeViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
     lookup_url_kwarg = "pk"
     permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
+    throttle_classes = [ApiRateThrottle]
 
     def get_queryset(self):
         queryset = Node.objects.all()
@@ -89,6 +93,7 @@ class EdgeViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
     lookup_url_kwarg = "pk"
     permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
+    throttle_classes = [ApiRateThrottle]
 
     def get_queryset(self):
         queryset = Edge.objects.all()
