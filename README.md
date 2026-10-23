@@ -4,6 +4,8 @@ Event-driven workflow automation engine built with Django.
 
 [![CI](https://github.com/KIRAZINA/flowforge/actions/workflows/ci.yml/badge.svg)](https://github.com/KIRAZINA/flowforge/actions/workflows/ci.yml)
 
+**Status:** Active development — portfolio / demonstration project showcasing advanced Django architecture.
+
 FlowForge is an open-source, event-driven workflow automation platform in the spirit of n8n and Make. It lets you model workflows as directed acyclic graphs of typed nodes, execute them synchronously or asynchronously, and trigger them via webhooks, schedules, or the REST API. Workflows run inside a restricted Python sandbox for safe user-provided transformations.
 
 ## Key Features
@@ -28,6 +30,19 @@ FlowForge is an open-source, event-driven workflow automation platform in the sp
 - `apps/core/` — shared models such as API keys
 
 A workflow is versioned. Each `WorkflowVersion` contains nodes and edges. An `Execution` runs a published version in topological order and records `ExecutionLog` entries.
+
+```text
+Workflow -> WorkflowVersion -> Nodes / Edges
+                |
+                v
+            Trigger (webhook / cron / manual)
+                |
+                v
+            Execution -> ExecutionLog (per node)
+                |
+                v
+            Sandbox (validated Python transform)
+```
 
 ## Tech Stack
 
@@ -196,6 +211,15 @@ pre-commit install
 - API access can be protected with API keys (`Authorization: Api-Key <key>`).
 - Webhooks support optional secrets and API keys.
 - Rate limiting is applied to webhooks and API endpoints.
+- The sandbox is best-effort and should not be treated as a complete isolation boundary.
+
+## Security
+
+- User-provided Python code runs in a restricted sandbox with AST validation, a minimal builtin set, timeouts, and result size limits.
+- API access can be protected with API keys (`Authorization: Api-Key <key>`).
+- Webhooks support optional secrets and API keys.
+- Rate limiting is applied to webhooks and API endpoints.
+- Webhook payloads can be validated against JSON Schema.
 - The sandbox is best-effort and should not be treated as a complete isolation boundary.
 
 ## Roadmap
