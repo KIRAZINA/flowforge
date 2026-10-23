@@ -7,6 +7,7 @@ from apps.sandbox.executor import run_transform
 from apps.workflows.models import Node
 
 from .models import Execution, ExecutionLog
+from .realtime import broadcast_execution_log
 
 
 class SyncDAGRunner:
@@ -68,13 +69,14 @@ class SyncDAGRunner:
 
             for node_id in ordered_ids:
                 node = node_by_id[node_id]
-                ExecutionLog.objects.create(
+                started_log = ExecutionLog.objects.create(
                     execution=execution,
                     node=node,
                     level="info",
                     message=f"Node '{node.name}' started",
                     data={"node_type": node.node_type},
                 )
+                broadcast_execution_log(started_log)
 
                 try:
                     if node.node_type in {"python", "transform"}:
@@ -100,21 +102,23 @@ class SyncDAGRunner:
                     elif node_result is not None:
                         context[node.key] = node_result
 
-                    ExecutionLog.objects.create(
+                    completed_log = ExecutionLog.objects.create(
                         execution=execution,
                         node=node,
                         level="info",
                         message=f"Node '{node.name}' completed",
                         data={"result": node_result, "stdout": stdout},
                     )
+                    broadcast_execution_log(completed_log)
                 except Exception as exc:
-                    ExecutionLog.objects.create(
+                    failed_log = ExecutionLog.objects.create(
                         execution=execution,
                         node=node,
                         level="error",
                         message=f"Node '{node.name}' failed: {exc}",
                         data={"error": str(exc)},
                     )
+                    broadcast_execution_log(failed_log)
                     raise
 
             execution.status = "success"
