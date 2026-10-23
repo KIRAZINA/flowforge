@@ -4,7 +4,8 @@ from .exceptions import (
     SandboxTimeoutError,
     SandboxValidationError,
 )
-from .executor import execute_user_code
+from .executor import execute_user_code, run_transform
+from .helpers import Helpers
 from .validator import validate_code
 
 __all__ = [
@@ -14,4 +15,6 @@ __all__ = [
     "SandboxMemoryError",
     "validate_code",
     "execute_user_code",
+    "run_transform",
+    "Helpers",
 ]
