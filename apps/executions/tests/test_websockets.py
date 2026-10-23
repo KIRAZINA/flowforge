@@ -1,18 +1,17 @@
 import os
+
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "1")
 
-import json
 import pytest
+from asgiref.sync import sync_to_async
+from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
-from asgiref.sync import sync_to_async
-from channels.routing import URLRouter
-
-from apps.executions.routing import websocket_urlpatterns
 from apps.executions.models import Execution, ExecutionLog
 from apps.executions.realtime import broadcast_execution_log
+from apps.executions.routing import websocket_urlpatterns
 from apps.workflows.models import Workflow, WorkflowVersion
 
 User = get_user_model()
@@ -76,7 +75,8 @@ async def test_consumer_sends_history():
 @pytest.mark.asyncio
 async def test_consumer_rejects_unknown_execution():
     communicator = WebsocketCommunicator(
-        URLRouter(websocket_urlpatterns), "/ws/executions/00000000-0000-0000-0000-000000000000/logs/"
+        URLRouter(websocket_urlpatterns),
+        "/ws/executions/00000000-0000-0000-0000-000000000000/logs/",
     )
     connected, close_code = await communicator.connect()
     assert connected is False

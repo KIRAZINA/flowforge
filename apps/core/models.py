@@ -2,7 +2,6 @@ import hashlib
 import hmac
 import secrets
 import uuid
-from datetime import timedelta
 
 from django.conf import settings
 from django.db import models

@@ -1,11 +1,10 @@
-import json
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 from apps.executions.models import Execution
 from apps.executions.services import start_execution
-from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
+from apps.workflows.models import Node, Workflow, WorkflowVersion
 
 User = get_user_model()
 
@@ -19,7 +18,7 @@ def user(db):
 def version(user):
     workflow = Workflow.objects.create(name="AsyncW", slug="asyncw", created_by=user)
     version = WorkflowVersion.objects.create(workflow=workflow, version_number=1, is_published=True)
-    n = Node.objects.create(
+    _node = Node.objects.create(
         workflow_version=version,
         key="t",
         name="t",

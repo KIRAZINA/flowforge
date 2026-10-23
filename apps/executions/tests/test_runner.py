@@ -5,7 +5,6 @@ from apps.executions.models import Execution, ExecutionLog
 from apps.executions.runner import SyncDAGRunner, run_workflow_sync
 from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
 
-
 User = get_user_model()
 
 
@@ -78,7 +77,7 @@ def test_cycle_detection(version):
 @pytest.mark.django_db
 def test_transform_failure(version):
     workflow, ver = version
-    n = make_node(ver, "a", "transform", {"code": "result = 1 / 0"})
+    _node = make_node(ver, "a", "transform", {"code": "result = 1 / 0"})
     execution = Execution.objects.create(workflow_version=ver, input_payload={})
     run = SyncDAGRunner(execution).run()
     assert run.status == "failed"
@@ -88,7 +87,7 @@ def test_transform_failure(version):
 @pytest.mark.django_db
 def test_creates_execution_logs(version):
     workflow, ver = version
-    n = make_node(ver, "a", "transform", {"code": "result = {'ok': True}"})
+    _node = make_node(ver, "a", "transform", {"code": "result = {'ok': True}"})
     execution = Execution.objects.create(workflow_version=ver, input_payload={})
     SyncDAGRunner(execution).run()
     assert ExecutionLog.objects.filter(execution=execution).count() >= 2
@@ -97,7 +96,7 @@ def test_creates_execution_logs(version):
 @pytest.mark.django_db
 def test_filter_node(version):
     workflow, ver = version
-    n = make_node(ver, "f", "filter", {"condition": "data['status'] == 'active'"})
+    _node = make_node(ver, "f", "filter", {"condition": "data['status'] == 'active'"})
     execution = Execution.objects.create(workflow_version=ver, input_payload={"status": "active"})
     run = SyncDAGRunner(execution).run()
     assert run.status == "success"

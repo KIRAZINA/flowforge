@@ -1,5 +1,3 @@
-from django.contrib.auth import get_user_model
-
 from apps.workflows.models import WorkflowVersion
 
 from .models import Execution

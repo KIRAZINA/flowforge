@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-
 from rest_framework import serializers
 
 from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
@@ -82,7 +81,9 @@ class EdgeSerializer(serializers.ModelSerializer):
         version = self.context.get("workflow_version")
         if source and target:
             if source.workflow_version_id != target.workflow_version_id:
-                raise serializers.ValidationError("Source and target must belong to the same version.")
+                raise serializers.ValidationError(
+                    "Source and target must belong to the same version."
+                )
             if version is not None and source.workflow_version_id != version.id:
                 raise serializers.ValidationError("Nodes must belong to this version.")
         return attrs

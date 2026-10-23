@@ -45,9 +45,7 @@ class Workflow(models.Model):
 
 class WorkflowVersion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    workflow = models.ForeignKey(
-        Workflow, on_delete=models.CASCADE, related_name="versions"
-    )
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE, related_name="versions")
     version_number = models.PositiveIntegerField()
     is_published = models.BooleanField(default=False)
     definition = models.JSONField(default=dict)
@@ -128,12 +126,8 @@ class Edge(models.Model):
     workflow_version = models.ForeignKey(
         WorkflowVersion, on_delete=models.CASCADE, related_name="edges"
     )
-    source_node = models.ForeignKey(
-        Node, on_delete=models.CASCADE, related_name="outgoing_edges"
-    )
-    target_node = models.ForeignKey(
-        Node, on_delete=models.CASCADE, related_name="incoming_edges"
-    )
+    source_node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="outgoing_edges")
+    target_node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="incoming_edges")
     source_handle = models.CharField(max_length=100, blank=True, default="default")
     target_handle = models.CharField(max_length=100, blank=True, default="default")
     condition = models.JSONField(null=True, blank=True)
@@ -145,7 +139,13 @@ class Edge(models.Model):
         verbose_name_plural = "Edges"
         constraints = [
             models.UniqueConstraint(
-                fields=["workflow_version", "source_node", "target_node", "source_handle", "target_handle"],
+                fields=[
+                    "workflow_version",
+                    "source_node",
+                    "target_node",
+                    "source_handle",
+                    "target_handle",
+                ],
                 name="unique_edge_per_handles",
             ),
             models.CheckConstraint(
@@ -172,9 +172,7 @@ TRIGGER_TYPE_CHOICES = [
 
 class Trigger(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    workflow = models.ForeignKey(
-        Workflow, on_delete=models.CASCADE, related_name="triggers"
-    )
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE, related_name="triggers")
     trigger_type = models.CharField(max_length=50, choices=TRIGGER_TYPE_CHOICES)
     config = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)

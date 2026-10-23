@@ -6,9 +6,6 @@ from contextlib import redirect_stdout
 
 from .allowed_builtins import ALLOWED_BUILTIN_NAMES
 from .exceptions import (
-    SandboxExecutionError,
-    SandboxMemoryError,
-    SandboxTimeoutError,
     SandboxValidationError,
 )
 from .helpers import Helpers
@@ -37,9 +34,7 @@ def _worker(code, input_data, queue):
     try:
         validate_code(code)
         tree = ast.parse(code, mode="exec")
-        is_single_expression = (
-            len(tree.body) == 1 and isinstance(tree.body[0], ast.Expr)
-        )
+        is_single_expression = len(tree.body) == 1 and isinstance(tree.body[0], ast.Expr)
 
         builtins = _make_builtins(stdout_buffer)
         globals_dict = {
@@ -121,9 +116,7 @@ def _run(code, input_data, timeout):
         }
 
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(
-        target=_worker, args=(code, input_data, queue), daemon=True
-    )
+    process = multiprocessing.Process(target=_worker, args=(code, input_data, queue), daemon=True)
     process.start()
     process.join(timeout)
 

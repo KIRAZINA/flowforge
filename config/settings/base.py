@@ -1,4 +1,5 @@
 """Base settings shared by all environments."""
+
 import os
 from pathlib import Path
 
@@ -74,7 +75,9 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres://flowforge:flowforge@localhost:5432/flowforge"),
+    "default": env.db(
+        "DATABASE_URL", default="postgres://flowforge:flowforge@localhost:5432/flowforge"
+    ),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -97,8 +100,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=env("REDIS_URL", default="redis://localhost:6379/0"))
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=env("REDIS_URL", default="redis://localhost:6379/0"))
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL", default=env("REDIS_URL", default="redis://localhost:6379/0")
+)
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND", default=env("REDIS_URL", default="redis://localhost:6379/0")
+)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

@@ -1,7 +1,7 @@
 import pytest
 
-from apps.sandbox.executor import execute_user_code, run_transform
 from apps.sandbox.exceptions import SandboxValidationError
+from apps.sandbox.executor import execute_user_code, run_transform
 from apps.sandbox.validator import validate_code
 
 
@@ -95,7 +95,9 @@ def test_helper_set_value_immutable():
 
 
 def test_helper_pick_and_omit():
-    code = "result = {'picked': helpers.pick(data, ['a', 'b']), 'omitted': helpers.omit(data, ['a'])}"
+    code = (
+        "result = {'picked': helpers.pick(data, ['a', 'b']), 'omitted': helpers.omit(data, ['a'])}"
+    )
     out = run_transform(code, {"a": 1, "b": 2, "c": 3})
     assert out["success"] is True
     assert out["result"]["picked"] == {"a": 1, "b": 2}

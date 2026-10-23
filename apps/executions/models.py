@@ -64,12 +64,8 @@ class ExecutionLog(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    execution = models.ForeignKey(
-        Execution, on_delete=models.CASCADE, related_name="logs"
-    )
-    node = models.ForeignKey(
-        "workflows.Node", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    execution = models.ForeignKey(Execution, on_delete=models.CASCADE, related_name="logs")
+    node = models.ForeignKey("workflows.Node", on_delete=models.SET_NULL, null=True, blank=True)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default="info")
     message = models.TextField()
     data = models.JSONField(default=dict, blank=True)

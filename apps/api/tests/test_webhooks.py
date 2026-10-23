@@ -4,8 +4,7 @@ from django.test import override_settings
 from rest_framework.test import APIClient
 
 from apps.executions.models import Execution
-from apps.workflows.models import Trigger, Workflow, WorkflowVersion
-from apps.workflows.models import Node
+from apps.workflows.models import Node, Trigger, Workflow, WorkflowVersion
 
 User = get_user_model()
 
@@ -18,7 +17,9 @@ def api_client():
 @pytest.fixture
 def published_workflow(db):
     user = User.objects.create_user("webuser", "web@example.com", "pass")
-    workflow = Workflow.objects.create(name="HookFlow", slug="hook-flow", is_active=True, created_by=user)
+    workflow = Workflow.objects.create(
+        name="HookFlow", slug="hook-flow", is_active=True, created_by=user
+    )
     version = WorkflowVersion.objects.create(workflow=workflow, version_number=1, is_published=True)
     Node.objects.create(
         workflow_version=version,

@@ -1,9 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
-from django.test import override_settings
 from rest_framework.test import APIClient
-
-from apps.workflows.models import Workflow
 
 User = get_user_model()
 
@@ -24,7 +21,9 @@ def auth_client(db):
 @pytest.mark.django_db
 def test_create_workflow(auth_client):
     client, user = auth_client
-    response = client.post("/api/workflows/", {"name": "My Flow", "description": "desc"}, format="json")
+    response = client.post(
+        "/api/workflows/", {"name": "My Flow", "description": "desc"}, format="json"
+    )
     assert response.status_code == 201
     assert response.data["slug"] == "my-flow"
 
@@ -48,12 +47,22 @@ def test_full_workflow_happy_path(auth_client):
     version_id = version_resp.data["id"]
     node1 = client.post(
         f"/api/workflows/{slug}/versions/{version_id}/nodes/",
-        {"key": "a", "name": "A", "node_type": "transform", "config": {"code": "result = {'x': 1}"}},
+        {
+            "key": "a",
+            "name": "A",
+            "node_type": "transform",
+            "config": {"code": "result = {'x': 1}"},
+        },
         format="json",
     )
     node2 = client.post(
         f"/api/workflows/{slug}/versions/{version_id}/nodes/",
-        {"key": "b", "name": "B", "node_type": "transform", "config": {"code": "result = {'y': 2}"}},
+        {
+            "key": "b",
+            "name": "B",
+            "node_type": "transform",
+            "config": {"code": "result = {'y': 2}"},
+        },
         format="json",
     )
     assert node1.status_code == 201 and node2.status_code == 201

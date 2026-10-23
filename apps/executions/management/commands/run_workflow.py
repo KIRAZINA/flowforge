@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from apps.executions.models import Execution
 from apps.executions.services import start_execution
 
 

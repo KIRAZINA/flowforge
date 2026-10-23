@@ -1,4 +1,3 @@
-import copy
 import json
 
 
@@ -14,7 +13,7 @@ class Helpers:
                     current = current[part]
                 else:
                     return default
-            elif isinstance(current, (list, tuple)):
+            elif isinstance(current, list | tuple):
                 if part.isdigit():
                     index = int(part)
                     if 0 <= index < len(current):
@@ -41,7 +40,7 @@ class Helpers:
 
         key = parts[0]
         child = data.get(key) if isinstance(data, dict) else None
-        if not isinstance(child, (dict, list, tuple)):
+        if not isinstance(child, dict | list | tuple):
             child = {}
         new_child = Helpers.set_value(child, ".".join(parts[1:]), value)
         new = dict(data) if isinstance(data, dict) else {}
@@ -52,7 +51,7 @@ class Helpers:
     def pick(data, keys):
         if not isinstance(data, dict):
             return {}
-        if not isinstance(keys, (list, tuple, set)):
+        if not isinstance(keys, list | tuple | set):
             return {}
         return {key: data[key] for key in keys if isinstance(key, str) and key in data}
 
@@ -60,7 +59,7 @@ class Helpers:
     def omit(data, keys):
         if not isinstance(data, dict):
             return {}
-        excluded = set(keys) if isinstance(keys, (list, tuple, set)) else set()
+        excluded = set(keys) if isinstance(keys, list | tuple | set) else set()
         return {key: value for key, value in data.items() if key not in excluded}
 
     @staticmethod

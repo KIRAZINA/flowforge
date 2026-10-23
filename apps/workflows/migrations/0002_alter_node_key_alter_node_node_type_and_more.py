@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("workflows", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -37,9 +36,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="workflow",
-            index=models.Index(
-                fields=["is_public"], name="workflows_w_is_publ_d2dfe9_idx"
-            ),
+            index=models.Index(fields=["is_public"], name="workflows_w_is_publ_d2dfe9_idx"),
         ),
         migrations.AddIndex(
             model_name="workflow",
@@ -63,9 +60,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="edge",
             constraint=models.CheckConstraint(
-                condition=models.Q(
-                    ("source_node", models.F("target_node")), _negated=True
-                ),
+                condition=models.Q(("source_node", models.F("target_node")), _negated=True),
                 name="edge_source_not_target",
             ),
         ),

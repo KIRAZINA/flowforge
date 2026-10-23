@@ -75,12 +75,16 @@ def webhook_view(request, workflow_slug, trigger_path=None):
 
     trigger = _select_trigger(workflow, trigger_path)
 
-    allowed_methods = (trigger.config or {}).get("methods") or (trigger.config or {}).get("method") or ["POST"]
+    allowed_methods = (
+        (trigger.config or {}).get("methods") or (trigger.config or {}).get("method") or ["POST"]
+    )
     if isinstance(allowed_methods, str):
         allowed_methods = [allowed_methods]
     allowed_methods = [str(method).upper() for method in allowed_methods]
     if request.method.upper() not in allowed_methods:
-        return Response({"detail": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(
+            {"detail": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
     api_key_user = _authenticate_api_key(request)
     if api_key_user == "invalid":
@@ -94,7 +98,9 @@ def webhook_view(request, workflow_slug, trigger_path=None):
     else:
         secret = (trigger.config or {}).get("secret")
         if secret:
-            provided = request.headers.get("X-FlowForge-Secret") or request.query_params.get("secret")
+            provided = request.headers.get("X-FlowForge-Secret") or request.query_params.get(
+                "secret"
+            )
             if provided != secret:
                 return Response({"detail": "Invalid secret."}, status=status.HTTP_403_FORBIDDEN)
 

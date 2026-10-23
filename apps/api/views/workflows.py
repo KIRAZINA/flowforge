@@ -2,13 +2,16 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated  # TODO: refine access control
-
-from apps.api.permissions import IsOwnerOrReadOnly, IsWorkflowOwnerOrReadOnly
 from rest_framework.response import Response
 
+from apps.api.permissions import IsOwnerOrReadOnly, IsWorkflowOwnerOrReadOnly
+from apps.api.serializers import (
+    EdgeSerializer,
+    NodeSerializer,
+    WorkflowSerializer,
+    WorkflowVersionSerializer,
+)
 from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
-
-from apps.api.serializers import EdgeSerializer, NodeSerializer, WorkflowSerializer, WorkflowVersionSerializer
 
 
 class WorkflowViewSet(viewsets.ModelViewSet):
@@ -18,7 +21,9 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user if self.request.user.is_authenticated else None)
+        serializer.save(
+            created_by=self.request.user if self.request.user.is_authenticated else None
+        )
 
 
 class WorkflowVersionViewSet(viewsets.ModelViewSet):
@@ -38,7 +43,11 @@ class WorkflowVersionViewSet(viewsets.ModelViewSet):
         workflow = get_object_or_404(Workflow, slug=self.kwargs["slug"])
         version_number = serializer.validated_data.get("version_number")
         if version_number is None:
-            last = WorkflowVersion.objects.filter(workflow=workflow).order_by("-version_number").first()
+            last = (
+                WorkflowVersion.objects.filter(workflow=workflow)
+                .order_by("-version_number")
+                .first()
+            )
             version_number = (last.version_number + 1) if last else 1
         serializer.save(workflow=workflow, version_number=version_number)
 
@@ -47,7 +56,9 @@ class WorkflowVersionViewSet(viewsets.ModelViewSet):
         version = self.get_object()
         version.is_published = True
         version.save(update_fields=["is_published"])
-        WorkflowVersion.objects.filter(workflow=version.workflow).exclude(pk=version.pk).update(is_published=False)
+        WorkflowVersion.objects.filter(workflow=version.workflow).exclude(pk=version.pk).update(
+            is_published=False
+        )
         serializer = self.get_serializer(version)
         return Response(serializer.data, status=200)
 

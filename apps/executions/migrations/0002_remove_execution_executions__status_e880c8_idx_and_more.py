@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("executions", "0001_initial"),
         ("workflows", "0002_alter_node_key_alter_node_node_type_and_more"),
