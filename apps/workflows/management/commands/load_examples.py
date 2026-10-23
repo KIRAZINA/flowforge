@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 
 from apps.workflows.models import Edge, Node, Trigger, Workflow, WorkflowVersion
 
-
 EXAMPLES = [
     {
         "name": "Simple Math Transform",
@@ -27,7 +26,9 @@ EXAMPLES = [
                 "key": "add_tax",
                 "name": "Add Tax",
                 "node_type": "transform",
-                "config": {"code": "result = {'total': data['subtotal'] * 1.2, 'tax': data['subtotal'] * 0.2}"},
+                "config": {
+                    "code": "result = {'total': data['subtotal'] * 1.2, 'tax': data['subtotal'] * 0.2}"
+                },
             },
         ],
         "edges": [("multiply", "add_tax")],
@@ -50,13 +51,17 @@ EXAMPLES = [
                 "key": "normalize",
                 "name": "Normalize",
                 "node_type": "transform",
-                "config": {"code": "result = {'email': data['email'].strip().lower(), 'name': data['name'].strip().title(), 'tags': data.get('tags', [])}"},
+                "config": {
+                    "code": "result = {'email': data['email'].strip().lower(), 'name': data['name'].strip().title(), 'tags': data.get('tags', [])}"
+                },
             },
             {
                 "key": "enrich",
                 "name": "Enrich",
                 "node_type": "transform",
-                "config": {"code": "result = {'summary': {'email': data['email'], 'name': data['name'], 'tag_count': len(data['tags'])}, 'active': True}"},
+                "config": {
+                    "code": "result = {'summary': {'email': data['email'], 'name': data['name'], 'tag_count': len(data['tags'])}, 'active': True}"
+                },
             },
         ],
         "edges": [("normalize", "enrich")],
@@ -84,25 +89,33 @@ EXAMPLES = [
                 "key": "validate",
                 "name": "Validate",
                 "node_type": "transform",
-                "config": {"code": "result = {'order': data['order'], 'valid': data['order'].get('total', 0) > 0}"},
+                "config": {
+                    "code": "result = {'order': data['order'], 'valid': data['order'].get('total', 0) > 0}"
+                },
             },
             {
                 "key": "enrich",
                 "name": "Enrich",
                 "node_type": "transform",
-                "config": {"code": "result = {'customer': helpers.get(data, 'order.customer', 'unknown'), 'total': helpers.get(data, 'order.total', 0)}"},
+                "config": {
+                    "code": "result = {'customer': helpers.get(data, 'order.customer', 'unknown'), 'total': helpers.get(data, 'order.total', 0)}"
+                },
             },
             {
                 "key": "discount",
                 "name": "Apply Discount",
                 "node_type": "transform",
-                "config": {"code": "total = data['total']\ndiscount = total * 0.1 if total > 100 else 0\nresult = {'discount': discount, 'final_total': total - discount}"},
+                "config": {
+                    "code": "total = data['total']\ndiscount = total * 0.1 if total > 100 else 0\nresult = {'discount': discount, 'final_total': total - discount}"
+                },
             },
             {
                 "key": "format",
                 "name": "Format Receipt",
                 "node_type": "transform",
-                "config": {"code": "result = {'receipt': {'customer': data['customer'], 'total': data['total'], 'discount': data['discount'], 'final_total': data['final_total']}}"},
+                "config": {
+                    "code": "result = {'receipt': {'customer': data['customer'], 'total': data['total'], 'discount': data['discount'], 'final_total': data['final_total']}}"
+                },
             },
         ],
         "edges": [("validate", "enrich"), ("enrich", "discount"), ("discount", "format")],
@@ -157,7 +170,9 @@ class Command(BaseCommand):
                     name=node_data["name"],
                     node_type=node_data["node_type"],
                     config=node_data["config"],
-                    input_schema=example["input_schema"] if node_data["key"] == example["nodes"][0]["key"] else {},
+                    input_schema=example["input_schema"]
+                    if node_data["key"] == example["nodes"][0]["key"]
+                    else {},
                 )
                 node_map[node.key] = node
 
