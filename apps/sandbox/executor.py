@@ -2,7 +2,6 @@ import ast
 import io
 import json
 import multiprocessing
-import sys
 import traceback
 from contextlib import redirect_stdout
 
@@ -19,20 +18,10 @@ DEFAULT_MAX_RESULT_SIZE = 1 * 1024 * 1024
 
 
 def _apply_memory_limit(max_memory_mb):
-    if not sys.platform.startswith("linux"):
-        return False
-    try:
-        import resource
-
-        limit = max_memory_mb * 1024 * 1024
-        resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
-        try:
-            resource.setrlimit(resource.RLIMIT_RSS, (limit, limit))
-        except (ValueError, OSError):
-            pass
-        return True
-    except Exception:
-        return False
+    # Soft memory limits via resource.setrlimit proved unstable on several
+    # platforms (the forked interpreter can already exceed the limit and die
+    # silently). Keep this as a documented stub for now.
+    return False
 
 
 def _make_builtins(stdout_buffer):
