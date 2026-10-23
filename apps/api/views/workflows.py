@@ -1,7 +1,9 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated  # Access control is enforced by IsOwnerOrReadOnly / IsWorkflowOwnerOrReadOnly
+from rest_framework.permissions import (
+    IsAuthenticated,  # Access control is enforced by IsOwnerOrReadOnly / IsWorkflowOwnerOrReadOnly
+)
 from rest_framework.response import Response
 
 from apps.api.permissions import IsOwnerOrReadOnly, IsWorkflowOwnerOrReadOnly
