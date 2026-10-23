@@ -123,6 +123,30 @@ Response:
 {"execution_id": "...", "status": "pending"}
 ```
 
+## Try the Examples
+
+Load the demo workflows:
+
+```bash
+python manage.py load_examples
+```
+
+Trigger the simple math transform:
+
+```bash
+curl -X POST http://localhost:8000/hooks/simple-math-transform/ \
+  -H "Content-Type: application/json" \
+  -d '{"price": 10, "quantity": 3}'
+```
+
+Trigger the order processing pipeline:
+
+```bash
+curl -X POST http://localhost:8000/hooks/order-processing-pipeline/ \
+  -H "Content-Type: application/json" \
+  -d '{"order": {"customer": "Ada", "total": 120}}'
+```
+
 ## API Documentation
 
 Interactive Swagger UI is available at:
