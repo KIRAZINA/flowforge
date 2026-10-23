@@ -1,7 +1,9 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny  # TODO: replace with proper auth/ownership checks
+from rest_framework.permissions import IsAuthenticated  # TODO: refine access control
+
+from apps.api.permissions import IsOwnerOrReadOnly, IsWorkflowOwnerOrReadOnly
 from rest_framework.response import Response
 
 from apps.workflows.models import Edge, Node, Workflow, WorkflowVersion
@@ -13,7 +15,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     queryset = Workflow.objects.all()
     serializer_class = WorkflowSerializer
     lookup_field = "slug"
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user if self.request.user.is_authenticated else None)
@@ -23,7 +25,7 @@ class WorkflowVersionViewSet(viewsets.ModelViewSet):
     serializer_class = WorkflowVersionSerializer
     lookup_field = "id"
     lookup_url_kwarg = "pk"
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
 
     def get_queryset(self):
         queryset = WorkflowVersion.objects.all()
@@ -54,7 +56,7 @@ class NodeViewSet(viewsets.ModelViewSet):
     serializer_class = NodeSerializer
     lookup_field = "id"
     lookup_url_kwarg = "pk"
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
 
     def get_queryset(self):
         queryset = Node.objects.all()
@@ -75,7 +77,7 @@ class EdgeViewSet(viewsets.ModelViewSet):
     serializer_class = EdgeSerializer
     lookup_field = "id"
     lookup_url_kwarg = "pk"
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsWorkflowOwnerOrReadOnly]
 
     def get_queryset(self):
         queryset = Edge.objects.all()

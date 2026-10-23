@@ -117,6 +117,10 @@ CHANNEL_LAYERS = {
 # REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.api.authentication.ApiKeyAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
 }
 
 # drf-spectacular
