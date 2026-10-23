@@ -9,6 +9,7 @@ class ExecutionAdmin(admin.ModelAdmin):
     list_filter = ("status", "trigger_type", "created_at")
     search_fields = ("id", "workflow_version__workflow__name", "error_message")
     readonly_fields = ("id", "created_at", "started_at", "finished_at")
+    raw_id_fields = ("workflow_version", "created_by")
 
 
 @admin.register(ExecutionLog)
@@ -17,3 +18,4 @@ class ExecutionLogAdmin(admin.ModelAdmin):
     list_filter = ("level", "created_at")
     search_fields = ("message", "execution__id")
     readonly_fields = ("id", "created_at")
+    raw_id_fields = ("execution", "node")

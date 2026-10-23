@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 
 
 class Workflow(models.Model):
@@ -28,10 +29,18 @@ class Workflow(models.Model):
             models.Index(fields=["slug"]),
             models.Index(fields=["created_at"]),
             models.Index(fields=["is_active"]),
+            models.Index(fields=["is_public"]),
+            models.Index(fields=["is_active", "is_public"]),
         ]
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Helper: auto-generate slug from name when not provided.
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class WorkflowVersion(models.Model):
@@ -52,6 +61,11 @@ class WorkflowVersion(models.Model):
             models.UniqueConstraint(
                 fields=["workflow", "version_number"],
                 name="unique_workflow_version_number",
+            ),
+            models.UniqueConstraint(
+                fields=["workflow"],
+                condition=models.Q(is_published=True),
+                name="unique_published_version_per_workflow",
             ),
         ]
         indexes = [
@@ -80,9 +94,9 @@ class Node(models.Model):
     workflow_version = models.ForeignKey(
         WorkflowVersion, on_delete=models.CASCADE, related_name="nodes"
     )
-    key = models.CharField(max_length=100)
+    key = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=255)
-    node_type = models.CharField(max_length=50, choices=NODE_TYPE_CHOICES)
+    node_type = models.CharField(max_length=50, choices=NODE_TYPE_CHOICES, db_index=True)
     config = models.JSONField(default=dict)
     input_schema = models.JSONField(default=dict)
     output_schema = models.JSONField(default=dict)
@@ -129,6 +143,16 @@ class Edge(models.Model):
         ordering = ["created_at"]
         verbose_name = "Edge"
         verbose_name_plural = "Edges"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["workflow_version", "source_node", "target_node", "source_handle", "target_handle"],
+                name="unique_edge_per_handles",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(source_node=models.F("target_node")),
+                name="edge_source_not_target",
+            ),
+        ]
         indexes = [
             models.Index(fields=["workflow_version"]),
             models.Index(fields=["source_node"]),

@@ -10,6 +10,7 @@ class WorkflowAdmin(admin.ModelAdmin):
     search_fields = ("name", "slug", "description")
     readonly_fields = ("id", "created_at", "updated_at")
     prepopulated_fields = {"slug": ("name",)}
+    raw_id_fields = ("created_by",)
 
 
 @admin.register(WorkflowVersion)
@@ -18,6 +19,7 @@ class WorkflowVersionAdmin(admin.ModelAdmin):
     list_filter = ("is_published", "created_at")
     search_fields = ("workflow__name",)
     readonly_fields = ("id", "created_at")
+    raw_id_fields = ("workflow",)
 
 
 @admin.register(Node)
@@ -26,6 +28,7 @@ class NodeAdmin(admin.ModelAdmin):
     list_filter = ("node_type", "created_at")
     search_fields = ("name", "key", "workflow_version__workflow__name")
     readonly_fields = ("id", "created_at")
+    raw_id_fields = ("workflow_version",)
 
 
 @admin.register(Edge)
@@ -34,6 +37,7 @@ class EdgeAdmin(admin.ModelAdmin):
     list_filter = ("created_at",)
     search_fields = ("source_node__key", "target_node__key")
     readonly_fields = ("id", "created_at")
+    raw_id_fields = ("workflow_version", "source_node", "target_node")
 
 
 @admin.register(Trigger)
@@ -42,3 +46,4 @@ class TriggerAdmin(admin.ModelAdmin):
     list_filter = ("trigger_type", "is_active", "created_at")
     search_fields = ("workflow__name",)
     readonly_fields = ("id", "created_at")
+    raw_id_fields = ("workflow",)

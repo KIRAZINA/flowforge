@@ -40,13 +40,19 @@ class Execution(models.Model):
         verbose_name = "Execution"
         verbose_name_plural = "Executions"
         indexes = [
-            models.Index(fields=["status"]),
+            models.Index(fields=["status", "created_at"]),
             models.Index(fields=["created_at"]),
             models.Index(fields=["workflow_version", "status"]),
         ]
 
     def __str__(self) -> str:
         return f"Execution {self.id} ({self.status})"
+
+    @property
+    def duration(self):
+        if self.started_at and self.finished_at:
+            return self.finished_at - self.started_at
+        return None
 
 
 class ExecutionLog(models.Model):
@@ -75,6 +81,7 @@ class ExecutionLog(models.Model):
         verbose_name_plural = "Execution Logs"
         indexes = [
             models.Index(fields=["execution", "level"]),
+            models.Index(fields=["execution", "created_at"]),
             models.Index(fields=["created_at"]),
         ]
 
