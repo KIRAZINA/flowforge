@@ -32,8 +32,6 @@ local_settings.py
 *.pyd
 .Python
 
-# Django migrations
-**/migrations/*.py
 
 # Static files
 staticfiles/
